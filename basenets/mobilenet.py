@@ -2,6 +2,8 @@ import torch.nn as nn
 import math
 import os
 import torch
+from torchvision import transforms, datasets
+from torch.utils.data import dataloader
 
 
 def conv_bn(inp, oup, stride):
@@ -130,7 +132,49 @@ class MobileNetV2(nn.Module):
 if __name__ == '__main__':
     b = torch.zeros([5, 3, 200, 200])
     net = MobileNetV2()
-    state_dict = torch.load(os.path.join('weights','mobilenet_v2.pth') , map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
     out = net(b)
+
+    traindir = r'C:\temp\tempfordeep'
+    valdir = r'C:\temp\tempfordeep'
+    batch_size = 1
+    n_worker = 1
+
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+
+    input_size = 224
+    train_dataset = datasets.ImageFolder(
+        traindir,
+        transforms.Compose([
+            transforms.RandomResizedCrop(input_size, scale=(0.2, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ]))
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True,
+        num_workers=n_worker, pin_memory=True)
+
+    val_loader = torch.utils.data.DataLoader(
+        datasets.ImageFolder(valdir, transforms.Compose([
+            transforms.Resize(int(input_size / 0.875)),
+            transforms.CenterCrop(input_size),
+            transforms.ToTensor(),
+            normalize,
+        ])),
+        batch_size=batch_size, shuffle=False,
+        num_workers=n_worker, pin_memory=True)
+    train_in = next(iter(train_loader))
+    val_in = next(iter(val_loader))
+    train_im, train_class = train_in[0], train_in[1]
+    val_im, val_class = val_in[0], val_in[1]
+
+    out_train = net(train_im)
+    net.eval()
+    out_val = net(val_im)
+    # predicted_classes = torch.argmax(out_val)
+    topk, predicted_classes = torch.topk(out_val.squeeze(), 5)
     a = 3
