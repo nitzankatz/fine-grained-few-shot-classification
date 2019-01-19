@@ -1,5 +1,6 @@
 import torch.nn as nn
 import math
+import os
 import torch
 
 
@@ -129,5 +130,7 @@ class MobileNetV2(nn.Module):
 if __name__ == '__main__':
     b = torch.zeros([5, 3, 200, 200])
     net = MobileNetV2()
+    state_dict = torch.load(os.path.join('weights','mobilenet_v2.pth') , map_location=lambda storage, loc: storage)
+    net.load_state_dict(state_dict)
     out = net(b)
-    a=3
+    a = 3
