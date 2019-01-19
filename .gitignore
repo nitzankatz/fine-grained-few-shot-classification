@@ -1,5 +1,5 @@
 data/
-.pth
+*.pth
 .idea/
 weights/
 
@@ -8,7 +8,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-
+*.xml
 
 # C extensions
 *.so
