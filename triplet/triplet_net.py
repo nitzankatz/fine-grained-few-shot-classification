@@ -8,7 +8,7 @@ class TripletNet(nn.Module):
         self.base_net = base_net
 
     def load_weights(self, base_net_state_dict):
-        self.base_net.load(base_net_state_dict)
+        self.base_net.load_state_dict(base_net_state_dict)
 
     def save_weights(self, path):
         torch.save(self.base_net.state_dict(), path)
