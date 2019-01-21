@@ -143,8 +143,8 @@ def _get_triplet_mask(labels):
 
 if __name__ == '__main__':
     loss_func = HardTripletLoss(hardest=True)
-    embeddings = torch.rand(9, 1024)
-    labels = torch.tensor([1, 1, 1, 2, 2, 2, 3, 3, 3])
+    embeddings = torch.rand(3, 1024)
+    labels = torch.tensor([1 , 2, 3])
     l=loss_func(embeddings,labels)
     a=3
 

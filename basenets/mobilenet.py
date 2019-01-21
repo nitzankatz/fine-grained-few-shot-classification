@@ -107,9 +107,13 @@ class MobileNetV2(nn.Module):
 
         self._initialize_weights()
 
-    def forward(self, x):
+    def embed(self,x):
         x = self.features(x)
         x = x.mean(3).mean(2)
+        return x
+
+    def forward(self, x):
+        x = self.embed(x)
         x = self.classifier(x)
         return x
 
