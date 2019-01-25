@@ -9,7 +9,7 @@ from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
 
 
-def train(net,loaders,loss_fn,experiment_name):
+def train(net,data_loader,loss_fn,experiment_name):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 200
@@ -20,10 +20,7 @@ def train(net,loaders,loss_fn,experiment_name):
     # dataset_test = FashionDataset(os.path.join('data', 'FashionMnist'), 'test')
     # test_loader = DataLoader(dataset_test, batch_size=1000, num_workers=1)
 
-    data_loader = {"train": loaders["train"], "val": loaders["val"]}
-
-    # loss_fn = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
-    optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=weight_decay)
+    optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(experiment_name))
@@ -59,10 +56,10 @@ def train(net,loaders,loss_fn,experiment_name):
                     print(i_batch, loss.item())
 
                 # Zero gradients, perform a backward pass, and update the weights.
-                if phase == "train":
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
                 pred_lables = torch.argmax(y_pred, 1)
                 num_correct += torch.sum(torch.eq(labels_batch, pred_lables)).detach().cpu().numpy()
@@ -88,17 +85,14 @@ if __name__ == '__main__':
 
     loss_func = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
     net = MobileNetV2()
-    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
 
-    traindir = r'C:\temp\tempfordeep'
-    valdir = r'C:\temp\tempfordeep'
+    traindir = os.path.join('data', 'tempfordeep')
+    valdir = os.path.join('data', 'tempfordeep')
 
     batch_size = 4
     n_worker = 1
-
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
 
     input_size = 224
 
@@ -110,16 +104,7 @@ if __name__ == '__main__':
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=n_worker)  # , pin_memory=True)
 
-    val_trans_list = get_val_transforms(input_size=input_size)
-    val_dataset = datasets.ImageFolder(
-        valdir, val_trans_list)
-
-    val_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=batch_size, shuffle=True,
-        num_workers=n_worker)  # , pin_memory=True)
-
-    loaders = {'train':train_loader, 'val':val_loader}
-
-    train(net=net, loaders=loaders, loss_fn=loss_func, experiment_name='1')
+    train(net=net, loaders=train_loader, loss_fn=loss_func, experiment_name='1')
+    a=1
 
 
