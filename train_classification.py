@@ -5,16 +5,12 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import DatasetFolder
 from tensorboardX import SummaryWriter
 # import argparse
+from utils import get_train_transforms, get_val_transforms
+from torchvision import transforms, datasets
 
-def init_net():
 
 def train(net,loaders,loss_fn,experiment_name):
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--regularization', default='none', type=str,
-    #                     help='none, weight_decay, dropout or batch_norm')
-    # args = parser.parse_args()
-    # regularization = args.regularization
-    # print(regularization)
+
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 200
     # net = Lenet5(net_params_dict, data_params_dict).to(device)
@@ -23,7 +19,7 @@ def train(net,loaders,loss_fn,experiment_name):
     #
     # dataset_test = FashionDataset(os.path.join('data', 'FashionMnist'), 'test')
     # test_loader = DataLoader(dataset_test, batch_size=1000, num_workers=1)
-    #
+
     data_loader = {"train": loaders["train"], "val": loaders["val"]}
 
     # loss_fn = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
@@ -68,11 +64,6 @@ def train(net,loaders,loss_fn,experiment_name):
                     loss.backward()
                     optimizer.step()
 
-                if phase == "train" and regularization == "dropout":
-                    net.eval()
-                    y_pred = net(images_batch)
-                    net.train()
-
                 pred_lables = torch.argmax(y_pred, 1)
                 num_correct += torch.sum(torch.eq(labels_batch, pred_lables)).detach().cpu().numpy()
                 num_samples += labels_batch.shape[0]
@@ -89,12 +80,46 @@ def train(net,loaders,loss_fn,experiment_name):
 
         writer.add_scalars("loss vs epoch", loss_dict, epoch)
         writer.add_scalars("accuracy vs epoch", accuracy_dict, epoch)
-    torch.save(net.state_dict(), regularization + ".pth")
-    return regularization, device, epochs, weight_decay, net
+    torch.save(net.state_dict(), ".pth")
+    return device, epochs, net
 
 
 if __name__ == '__main__':
 
-    regularization, device, epochs, weight_decay, net = init_run()
+    loss_func = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
+    net = MobileNetV2()
+    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
+    net.load_state_dict(state_dict)
+
+    traindir = r'C:\temp\tempfordeep'
+    valdir = r'C:\temp\tempfordeep'
+
+    batch_size = 4
+    n_worker = 1
+
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+
+    input_size = 224
+
+    train_trans_list = get_train_transforms(input_size=input_size)
+    train_dataset = datasets.ImageFolder(
+        traindir,train_trans_list)
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True,
+        num_workers=n_worker)  # , pin_memory=True)
+
+    val_trans_list = get_val_transforms(input_size=input_size)
+    val_dataset = datasets.ImageFolder(
+        valdir, val_trans_list)
+
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset, batch_size=batch_size, shuffle=True,
+        num_workers=n_worker)  # , pin_memory=True)
+
+    loaders = {'train':train_loader, 'val':val_loader}
+
+    train(net=net, loaders=loaders, loss_fn=loss_func, experiment_name='1')
 
 
