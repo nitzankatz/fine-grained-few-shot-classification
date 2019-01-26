@@ -37,7 +37,7 @@ def main():
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
-        num_workers=n_worker)#, pin_memory=True)
+        num_workers=n_worker, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(valdir, transforms.Compose([
@@ -47,7 +47,7 @@ def main():
             normalize,
         ])),
         batch_size=batch_size, shuffle=False,
-        num_workers=n_worker)#, pin_memory=True)
+        num_workers=n_worker, pin_memory=True)
     train_in = next(iter(train_loader))
     val_in = next(iter(val_loader))
     train_im, train_class = train_in[0], train_in[1]
