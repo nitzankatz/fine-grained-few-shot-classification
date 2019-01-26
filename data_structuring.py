@@ -121,14 +121,66 @@ def oxford_partitioning(dir, division):
     print(dogs)
     print(sum)
 
-if __name__ == '__main__':
-    stanford_path = os.path.join('data', 'stanford', 'images')
-    stanford_division = {'train':80, 'validation':20, 'test':20}
-    # stanford_images_dirs = data_structuring(stanford_path, stanford_division)
-    stanford_rename(stanford_path)
+def cub_structuring(base_dir, division):
+    dirs = os.listdir(base_dir)
+    num_classes = len(dirs)
 
-    oxford_path = os.path.join('data', 'oxford', 'images', 'dogs')
-    oxford_division = {'train': 15, 'validation':0, 'test': 10}
+    # Hardcoded seed 1234
+    random.seed(1234)
+
+    temp = list(range(0, num_classes))
+    random.shuffle(temp)
+
+    train_inds = temp[0:division['train']]
+    val_inds = temp[division['train']: division['train'] + division['validation']]
+    test_inds = temp[division['train'] + division['validation']: num_classes + 1]
+
+    train_inds.sort()
+    val_inds.sort()
+    test_inds.sort()
+
+    train_dirs = [dirs[i - 1] for i in train_inds]
+    val_dirs = [dirs[i - 1] for i in val_inds]
+    test_dirs = [dirs[i - 1] for i in test_inds]
+
+    train_dir = os.path.join(base_dir, 'train')
+    val_dir = os.path.join(base_dir, 'val')
+    test_dir = os.path.join(base_dir, 'test')
+
+    if not os.path.isdir(train_dir):
+        os.mkdir(train_dir)
+    if not os.path.isdir(val_dir):
+        os.mkdir(val_dir)
+    if not os.path.isdir(test_dir):
+        os.mkdir(test_dir)
+
+    move_dirs(base_dir, train_dirs, train_dir)
+    move_dirs(base_dir, val_dirs, val_dir)
+    move_dirs(base_dir, test_dirs, test_dir)
+
+    print(train_dirs)
+    print(val_dirs)
+    print(test_dirs)
+    a=1
+
+def move_dirs(src, dir_list, dst):
+
+    for directory in dir_list:
+        shutil.move(os.path.join(src, directory), dst)
+
+
+if __name__ == '__main__':
+    # stanford_path = os.path.join('data', 'stanford', 'images')
+    # stanford_division = {'train':80, 'validation':20, 'test':20}
+    # stanford_images_dirs = data_structuring(stanford_path, stanford_division)
+    # stanford_rename(stanford_path)
+
+    # oxford_path = os.path.join('data', 'oxford', 'images', 'dogs')
+    # oxford_division = {'train': 15, 'validation':0, 'test': 10}
     # oxford_images_dirs = data_structuring(oxford_path, oxford_division)
+
+    cub_path = os.path.join('data', 'CUB_200_2011', 'CUB_200_2011_reorganized', 'images')
+    oxford_division = {'train': 160, 'validation': 20, 'test': 20}
+    cub_structuring(cub_path, oxford_division)
 
     a = 1
