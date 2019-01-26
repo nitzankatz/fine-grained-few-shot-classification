@@ -1,8 +1,9 @@
 import torch
 import os
 import random
-from torch.utils.data import Dataset
-
+from PIL import Image
+from torch.utils.data import Dataset, DataLoader
+from utils import get_val_transforms
 
 def main(root_dir, N, k):
     classes_dirs = get_n_classes_dirs(N, root_dir)
@@ -25,10 +26,15 @@ def get_images_for_lists(lists):
     for list in lists[1:]:
         assert len(lists[0]) == len(list)
     classes_batches = [list_to_batch(list) for list in lists]
-    return comparable_images
+    images = torch.cat(classes_batches)
+    return images
 
 
-def list_to_batch
+def list_to_batch(list):
+    dataset = ListDataset(list,get_val_transforms(224))
+    loader = DataLoader(dataset,batch_size=len(dataset))
+    return next(iter(loader))
+
 
 
 def test_class(class_test_lists, class_num, comparable_images):
@@ -72,19 +78,19 @@ def choose_n_from_list(list, n):
 
 
 class ListDataset(Dataset):
-    def __init__(self, elem_list, transform,load):
+    def __init__(self, path_list, transform):
         super(ListDataset, self).__init__()
-        self.list = elem_list
-        self.load = load
+        self.list = path_list
         self.transform = transform
 
     def __len__(self):
         return len(self.list)
 
     def __getitem__(self, idx):
-        super(ListDataset, self).__getitem__(idx)
-        im = self.load(self.list[idx])
-        return self.transform(im)
+        with open(self.list[idx], 'rb') as f:
+            img = Image.open(f)
+            img = img.convert('RGB')
+        return self.transform(img)
 
 
 if __name__ == '__main__':
