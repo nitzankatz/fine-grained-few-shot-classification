@@ -7,9 +7,10 @@ from tensorboardX import SummaryWriter
 # import argparse
 from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
+from n_way_k_shot import n_way_k_shot
 
 
-def train(net, data_loader, loss_fn, experiment_name):
+def train(net, data_loader, loss_fn, experiment_name, valdir):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 50
@@ -72,6 +73,10 @@ def train(net, data_loader, loss_fn, experiment_name):
 
         writer.add_scalar("loss vs epoch", avg_loss, epoch)
         writer.add_scalar("accuracy vs epoch", accuracy, epoch)
+
+        net.eval()
+        print(n_way_k_shot(valdir, 4, 1, net=net))
+
     torch.save(net.state_dict(), ".pth")
     return device, epochs, net
 
@@ -109,7 +114,9 @@ if __name__ == '__main__':
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=n_worker)  # , pin_memory=True)
 
-    train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
+    # train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
+    train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1', valdir=valdir)
+
     a=1
 
 
