@@ -9,10 +9,10 @@ from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
 
 
-def train(net,data_loader,loss_fn,experiment_name):
+def train(net, data_loader, loss_fn, experiment_name):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    epochs = 200
+    epochs = 10
     # net = Lenet5(net_params_dict, data_params_dict).to(device)
     # dataset_train = FashionDataset(os.path.join('data', 'FashionMnist'), 'train')
     # train_loader = DataLoader(dataset_train, batch_size=64, shuffle=True, num_workers=1, drop_last=True)
@@ -24,59 +24,50 @@ def train(net,data_loader,loss_fn,experiment_name):
 
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(experiment_name))
+    accuracy = 0
 
     for epoch in range(epochs):
 
-        accuracy_dict = {}
-        loss_dict = {}
+        num_correct = 0
+        num_samples = 0
+        loss_sum = 0
 
-        for phase, loader in data_loader.items():
-            num_correct = 0
-            num_samples = 0
-            loss_sum = 0
+        net.train()
 
-            if phase == "train":
-                net.train()
-            else:
-                net.eval()
+        for i_batch, sample_batch in enumerate(data_loader):
+            # Forward pass: Compute predicted y by passing x to the model
 
-            for i_batch, sample_batch in enumerate(loader):
-                # Forward pass: Compute predicted y by passing x to the model
+            images_batch = sample_batch[0].to(device)
+            labels_batch = sample_batch[1]
+            y_pred = net(images_batch)
 
-                images_batch = sample_batch[0].to(device)
-                labels_batch = sample_batch[1]
-                y_pred = net(images_batch)
+            # Compute and print loss
 
-                # Compute and print loss
+            labels_batch = labels_batch.type(torch.LongTensor).to(device)
+            loss = loss_fn(y_pred, labels_batch)
 
-                labels_batch = labels_batch.type(torch.LongTensor).to(device)
-                loss = loss_fn(y_pred, labels_batch)
+            if i_batch % 1000 == 0:
+                print(i_batch, loss.item())
 
-                if i_batch % 1000 == 0:
-                    print(i_batch, loss.item())
+            # Zero gradients, perform a backward pass, and update the weights.
 
-                # Zero gradients, perform a backward pass, and update the weights.
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+            pred_lables = torch.argmax(y_pred, 1)
+            num_correct += torch.sum(torch.eq(labels_batch, pred_lables)).detach().cpu().numpy()
+            num_samples += labels_batch.shape[0]
+            loss_sum += loss.detach().cpu().numpy()
 
-                pred_lables = torch.argmax(y_pred, 1)
-                num_correct += torch.sum(torch.eq(labels_batch, pred_lables)).detach().cpu().numpy()
-                num_samples += labels_batch.shape[0]
-                loss_sum += loss.detach().cpu().numpy()
-
-            avg_loss = loss_sum / len(loader)
+            avg_loss = loss_sum / len(data_loader)
             accuracy = num_correct / num_samples
 
-            accuracy_dict[phase] = accuracy
-            loss_dict[phase] = avg_loss
+            print("loss vs epoch classification train" + ' ' + str(avg_loss) + ' ' + str(epoch))
+            print("accuracy vs epoch classification train " + ' ' + str(accuracy) + ' ' + str(epoch))
 
-            print("loss vs epoch " + phase + ' ' + str(avg_loss) + ' ' + str(epoch))
-            print("accuracy vs epoch " + phase + ' ' + str(accuracy) + ' ' + str(epoch))
-
-        writer.add_scalars("loss vs epoch", loss_dict, epoch)
-        writer.add_scalars("accuracy vs epoch", accuracy_dict, epoch)
+        writer.add_scalar("loss vs epoch", avg_loss, epoch)
+        writer.add_scalar("accuracy vs epoch", accuracy, epoch)
     torch.save(net.state_dict(), ".pth")
     return device, epochs, net
 
@@ -104,7 +95,7 @@ if __name__ == '__main__':
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=n_worker)  # , pin_memory=True)
 
-    train(net=net, loaders=train_loader, loss_fn=loss_func, experiment_name='1')
+    train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
     a=1
 
 

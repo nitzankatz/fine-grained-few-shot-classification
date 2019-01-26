@@ -13,6 +13,7 @@ def data_structuring(base_dir, division):
     dirs = os.listdir(base_dir)
     num_classes = len(dirs)
 
+    # Hardcoded seed 1234
     random.seed(1234)
     train_inds = []
 
@@ -33,6 +34,40 @@ def data_structuring(base_dir, division):
 
 
     return {'train':train_dirs, 'validation':val_dirs, 'test':test_dirs}
+
+
+def stanford_rename(base_dir):
+    dirs = os.listdir(base_dir)
+    a=1
+    clean_dirs = []
+    i = 0
+    for directory in dirs:
+
+        images = os.listdir(os.path.join(base_dir, directory))
+        # class_name = directory.split('-')[1:].lower()
+        class_name = re.findall('-.+', directory)[0][1:].lower()
+
+        for image in images:
+        #     Suffix includes serial number and file format
+            image_suffix = '_'.join(image.split('_')[-1])
+            os.rename(os.path.join(base_dir, directory, image),
+                      os.path.join(base_dir, directory, class_name + '_' + image_suffix))
+            a=1
+        clean_dirs.append(class_name)
+
+        os.rename(os.path.join(base_dir, directory),
+                  os.path.join(base_dir, class_name))
+
+    print(clean_dirs)
+
+    with open(os.path.join('data','intersected_classes.txt')) as f:
+        lines = f.readlines()
+
+    for line in lines:
+        line = line[0:]
+
+
+    a=1
 
 
 def oxford_partitioning(dir, division):
@@ -90,9 +125,10 @@ if __name__ == '__main__':
     stanford_path = os.path.join('data', 'stanford', 'images')
     stanford_division = {'train':80, 'validation':20, 'test':20}
     # stanford_images_dirs = data_structuring(stanford_path, stanford_division)
+    stanford_rename(stanford_path)
 
     oxford_path = os.path.join('data', 'oxford', 'images', 'dogs')
     oxford_division = {'train': 15, 'validation':0, 'test': 10}
-    oxford_images_dirs = data_structuring(oxford_path, oxford_division)
+    # oxford_images_dirs = data_structuring(oxford_path, oxford_division)
 
     a = 1
