@@ -7,12 +7,13 @@ from tensorboardX import SummaryWriter
 # import argparse
 from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
+from n_way_k_shot import n_way_k_shot
 
 
-def train(net, data_loader, loss_fn, experiment_name):
+def train(net, data_loader, loss_fn, experiment_name, valdir):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    epochs = 10
+    epochs = 50
     # net = Lenet5(net_params_dict, data_params_dict).to(device)
     # dataset_train = FashionDataset(os.path.join('data', 'FashionMnist'), 'train')
     # train_loader = DataLoader(dataset_train, batch_size=64, shuffle=True, num_workers=1, drop_last=True)
@@ -55,6 +56,10 @@ def train(net, data_loader, loss_fn, experiment_name):
             loss.backward()
             optimizer.step()
 
+            net.eval()
+            y_pred = net(images_batch)
+            net.train()
+
             pred_lables = torch.argmax(y_pred, 1)
             num_correct += torch.sum(torch.eq(labels_batch, pred_lables)).detach().cpu().numpy()
             num_samples += labels_batch.shape[0]
@@ -63,21 +68,35 @@ def train(net, data_loader, loss_fn, experiment_name):
             avg_loss = loss_sum / len(data_loader)
             accuracy = num_correct / num_samples
 
-            print("loss vs epoch classification train" + ' ' + str(avg_loss) + ' ' + str(epoch))
-            print("accuracy vs epoch classification train " + ' ' + str(accuracy) + ' ' + str(epoch))
+        print("loss vs epoch classification train" + ' ' + str(avg_loss) + ' ' + str(epoch))
+        print("accuracy vs epoch classification train " + ' ' + str(accuracy) + ' ' + str(epoch))
 
         writer.add_scalar("loss vs epoch", avg_loss, epoch)
         writer.add_scalar("accuracy vs epoch", accuracy, epoch)
+
+        net.eval()
+        print(n_way_k_shot(valdir, 4, 1, net=net))
+
     torch.save(net.state_dict(), ".pth")
     return device, epochs, net
 
 
 if __name__ == '__main__':
 
+    train_classes = 4
     loss_func = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
-    net = MobileNetV2()
+    net = MobileNetV2(n_class=train_classes)
+
+    random_state_dict = net.state_dict()
     state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+
+    state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
+    state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
+
     net.load_state_dict(state_dict)
+
+    # traindir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'train')
+    # valdir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'val')
 
     traindir = os.path.join('data', 'tempfordeep')
     valdir = os.path.join('data', 'tempfordeep')
@@ -95,7 +114,9 @@ if __name__ == '__main__':
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=n_worker)  # , pin_memory=True)
 
-    train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
+    # train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
+    train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1', valdir=valdir)
+
     a=1
 
 
