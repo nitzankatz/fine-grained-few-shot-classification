@@ -16,7 +16,6 @@ def n_way_k_shot(root_dir, N, k, net):
 
 def embed_images(images, net):
     raw_embeddings = net.embed(images)
-    return raw_embeddings
     return F.normalize(raw_embeddings)
 
 
@@ -26,8 +25,6 @@ def get_accuracy(comparable_lists, test_lists, net):
     for class_num, class_test_list in enumerate(test_lists):
         num_correct, num_samples = test_class(class_test_list, class_num, comparable_embeddings, net)
         total_correct += num_correct
-        # print("class " + str(class_num))
-        # print(num_correct)
         total_samples += num_samples
     return total_correct.float().div(total_samples)
 
@@ -53,15 +50,11 @@ def get_list_loader(list, batch_size):
 
 
 def test_class(class_test_list, class_num, comparable_embeddings, net):
-    # print(class_test_list)
     test_loader = get_list_loader(class_test_list, 64)
     comparable_embeddings = comparable_embeddings.unsqueeze(2)
     num_correct = 0
     for batch_num, images in enumerate(test_loader):
         embeddings = embed_images(images, net)
-        # for i in range(4):
-        #     print(embeddings[i,:])
-        # print(embeddings)
         embeddings = embeddings.unsqueeze(0).unsqueeze(1)
         diff = embeddings - comparable_embeddings
         num_correct += get_num_correct(class_num, diff)
@@ -136,5 +129,5 @@ if __name__ == '__main__':
     state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
     net.eval()
-    acc = n_way_k_shot(root_dir, 4, 2, net)
+    acc = n_way_k_shot(root_dir, 4, 3, net)
     print("acc is: " + str(acc))
