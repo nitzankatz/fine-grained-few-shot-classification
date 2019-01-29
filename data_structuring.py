@@ -179,7 +179,8 @@ if __name__ == '__main__':
     # oxford_division = {'train': 15, 'validation':0, 'test': 10}
     # oxford_images_dirs = data_structuring(oxford_path, oxford_division)
 
-    cub_path = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images')
+    # cub_path = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images')
+    cub_path = os.path.join('data', 'CUB_200_2011', 'images')
     cub_division = {'train': 160, 'validation': 20, 'test': 20}
     cub_structuring(cub_path, cub_division)
 

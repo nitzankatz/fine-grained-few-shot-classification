@@ -65,8 +65,8 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             num_samples += labels_batch.shape[0]
             loss_sum += loss.detach().cpu().numpy()
 
-            avg_loss = loss_sum / len(data_loader)
-            accuracy = num_correct / num_samples
+        avg_loss = loss_sum / len(data_loader)
+        accuracy = num_correct / num_samples
 
         print("loss vs epoch classification train" + ' ' + str(avg_loss) + ' ' + str(epoch))
         print("accuracy vs epoch classification train " + ' ' + str(accuracy) + ' ' + str(epoch))
@@ -75,7 +75,9 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         writer.add_scalar("accuracy vs epoch", accuracy, epoch)
 
         net.eval()
-        print(n_way_k_shot(valdir, 4, 1, net=net))
+        nk = n_way_k_shot(valdir, 5, 5, net=net)
+        print(nk)
+        writer.add_scalar("nk vs epoch", nk, epoch)
 
     torch.save(net.state_dict(), ".pth")
     return device, epochs, net
@@ -83,7 +85,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
 if __name__ == '__main__':
 
-    train_classes = 4
+    train_classes = 160
     loss_func = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
     net = MobileNetV2(n_class=train_classes)
 
@@ -98,10 +100,10 @@ if __name__ == '__main__':
     # traindir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'train')
     # valdir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'val')
 
-    traindir = os.path.join('data', 'tempfordeep')
-    valdir = os.path.join('data', 'tempfordeep')
+    traindir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'train')
+    valdir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'val')
 
-    batch_size = 4
+    batch_size = 1
     n_worker = 1
 
     input_size = 224
