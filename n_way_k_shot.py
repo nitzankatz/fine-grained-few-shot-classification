@@ -7,6 +7,7 @@ from utils import get_val_transforms
 from basenets.mobilenet import MobileNetV2
 import torch.nn.functional as F
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def n_way_k_shot(root_dir, N, k, net):
     classes_dirs = get_n_classes_dirs(N, root_dir)
@@ -15,7 +16,7 @@ def n_way_k_shot(root_dir, N, k, net):
 
 
 def embed_images(images, net):
-    raw_embeddings = net.embed(images)
+    raw_embeddings = net.embed(images.to(device))
     return F.normalize(raw_embeddings)
 
 
