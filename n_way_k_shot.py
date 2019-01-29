@@ -66,7 +66,6 @@ def test_class(class_test_list, class_num, comparable_embeddings, net):
 def get_num_correct(class_num, diff):
     dists = torch.norm(diff, dim=3)
     sum_dists = dists.sum(1)
-    sum_dist_numpy = sum_dists.detach().numpy()
     max_class = torch.argmin(sum_dists, dim=0)
     correct = max_class == class_num
     return correct.sum()
