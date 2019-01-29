@@ -14,6 +14,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 50
+    net = net.to(device)
     # net = Lenet5(net_params_dict, data_params_dict).to(device)
     # dataset_train = FashionDataset(os.path.join('data', 'FashionMnist'), 'train')
     # train_loader = DataLoader(dataset_train, batch_size=64, shuffle=True, num_workers=1, drop_last=True)
