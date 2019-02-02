@@ -100,7 +100,8 @@ def my_list_dir(root_dir):
 
 def choose_n_from_list(list, n):
     assert n <= len(list)
-    random.seed(1234)
+    # random.seed(1234)
+    # random.seed(1235)
     random.shuffle(list)
     n_list = list[:n]
     rest_list = list[n:]
@@ -124,10 +125,11 @@ class ListDataset(Dataset):
 
 
 if __name__ == '__main__':
-    root_dir = r"C:\temp\tempfordeep"
+    # root_dir = r"C:\temp\tempfordeep"
+    root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
     net = MobileNetV2()
     state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
     net.eval()
-    acc = n_way_k_shot(root_dir, 4, 3, net)
+    acc = n_way_k_shot(root_dir, 5, 5, net)
     print("acc is: " + str(acc))
