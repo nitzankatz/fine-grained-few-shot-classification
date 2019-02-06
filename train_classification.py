@@ -7,7 +7,7 @@ from tensorboardX import SummaryWriter
 # import argparse
 from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
-from n_way_k_shot import n_way_k_shot
+from n_way_k_shot import run_n_way_k_shot
 
 
 def train(net, data_loader, loss_fn, experiment_name, valdir):
@@ -76,7 +76,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         writer.add_scalar("accuracy vs epoch", accuracy, epoch)
 
         net.eval()
-        nk = n_way_k_shot(valdir, 5, 5, net=net)
+        nk = run_n_way_k_shot(valdir, 5, 5, net=net)
         print(nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
 
