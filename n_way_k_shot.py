@@ -10,15 +10,21 @@ import torch.nn.functional as F
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
+def run_n_way_k_shot(root_dir, N, k, net):
+    start_seed = 0
+    for seed in range(3):
+        n_way_k_shot(root_dir, N, k, net, start_seed + seed)
+
+
 def split_check(root_dir, N, k, seed):
     classes_dirs = get_n_classes_dirs(N, root_dir, seed)
     comparable_lists, test_lists = split_classes(classes_dirs, k, seed)
     print(comparable_lists)
 
 
-def n_way_k_shot(root_dir, N, k, net):
-    classes_dirs = get_n_classes_dirs(N, root_dir)
-    comparable_lists, test_lists = split_classes(classes_dirs, k)
+def n_way_k_shot(root_dir, N, k, net, seed=1234):
+    classes_dirs = get_n_classes_dirs(N, root_dir, seed)
+    comparable_lists, test_lists = split_classes(classes_dirs, k, seed)
     return get_accuracy(comparable_lists, test_lists, net)
 
 
@@ -138,12 +144,13 @@ if __name__ == '__main__':
     # root_dir = r"C:\temp\tempfordeep"
     # root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
     root_dir = r'C:\temp\tempfordeep4'
-    for seed in range(200):
-        print(seed)
-        split_check(root_dir, 2, 1,seed)
+    # for seed in range(3):
+    #     print(seed)
+    #     split_check(root_dir, 2, 1, seed)
     net = MobileNetV2()
     state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
     net.eval()
-    acc = n_way_k_shot(root_dir, 2, 1, net)
-    print("acc is: " + str(acc))
+    for seed in range(3):
+        acc = n_way_k_shot(root_dir, 2, 1, net, seed)
+        print("acc is: " + str(acc))
