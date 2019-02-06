@@ -18,8 +18,75 @@ def split_check(root_dir, N, k, seed):
 
 def n_way_k_shot(root_dir, N, k, net):
     classes_dirs = get_n_classes_dirs(N, root_dir)
-    comparable_lists, test_lists = split_classes(classes_dirs, k)
+    # comparable_lists, test_lists = split_classes(classes_dirs, k)
+    comparable_lists, test_lists = mock_split_classes3()
     return get_accuracy(comparable_lists, test_lists, net)
+
+
+def mock_split_classes1():
+    comparable_lists = [
+        [r"C:\temp\tempfordeep4\0\icecream1.jpg"],
+        [r"C:\temp\tempfordeep4\1\bus.jpg"]
+    ]
+    test_lists = [
+        [
+            r"C:\temp\tempfordeep4\0\icecream1 - Copy.jpg",
+            r"C:\temp\tempfordeep4\0\bus3.jpg",
+            r"C:\temp\tempfordeep4\0\bus2.jpg",
+            r"C:\temp\tempfordeep4\0\bus1.jpg",
+            r"C:\temp\tempfordeep4\0\bus3.jpg"
+        ],
+        [
+            r"C:\temp\tempfordeep4\1\bus2.jpg",
+            r"C:\temp\tempfordeep4\1\ice1.jpg",
+            r"C:\temp\tempfordeep4\1\ice2.jpg",
+            r"C:\temp\tempfordeep4\1\ice3.jpg"
+        ]
+    ]
+    return comparable_lists, test_lists
+
+
+def mock_split_classes2():
+    comparable_lists = [
+        [r"C:\temp\tempfordeep5\0\Painted_Bunting_0006_15249.jpg"],
+        [r"C:\temp\tempfordeep5\1\Ivory_Gull_0093_49052 - Copy.jpg"]
+    ]
+    test_lists = [
+        [
+            r"C:\temp\tempfordeep5\0\Painted_Bunting_0006_15249 - Copy.jpg",
+            r"C:\temp\tempfordeep5\0\Ivory_Gull_0092_49996.jpg",
+            r"C:\temp\tempfordeep5\0\Ivory_Gull_0092_49996 - Copy.jpg",
+            r"C:\temp\tempfordeep5\0\Ivory_Gull_0092_49996 - Copy (2).jpg"
+        ],
+        [
+            r"C:\temp\tempfordeep5\1\Ivory_Gull_0093_49052.jpg",
+            r"C:\temp\tempfordeep5\1\Painted_Bunting_0029_16530 - Copy (2).jpg",
+            r"C:\temp\tempfordeep5\1\Painted_Bunting_0029_16530 - Copy.jpg",
+            r"C:\temp\tempfordeep5\1\Painted_Bunting_0029_16530.jpg"
+        ]
+    ]
+    return comparable_lists, test_lists
+
+
+def mock_split_classes3():
+    comparable_lists = [
+        [r"C:\temp\tempfordeep5\0\Ivory_Gull_0092_49996 - Copy (2).jpg"],
+        [r"C:\temp\tempfordeep5\1\Painted_Bunting_0029_16530.jpg"]
+    ]
+    test_lists = [
+        [r"C:\temp\tempfordeep5\0\Painted_Bunting_0006_15249.jpg",
+         r"C:\temp\tempfordeep5\0\Painted_Bunting_0006_15249 - Copy.jpg",
+         r"C:\temp\tempfordeep5\0\Ivory_Gull_0092_49996.jpg",
+         r"C:\temp\tempfordeep5\0\Ivory_Gull_0092_49996 - Copy.jpg"
+
+         ],
+        [r"C:\temp\tempfordeep5\1\Ivory_Gull_0093_49052 - Copy.jpg",
+         r"C:\temp\tempfordeep5\1\Ivory_Gull_0093_49052.jpg",
+         r"C:\temp\tempfordeep5\1\Painted_Bunting_0029_16530 - Copy (2).jpg",
+         r"C:\temp\tempfordeep5\1\Painted_Bunting_0029_16530 - Copy.jpg"
+         ]
+    ]
+    return comparable_lists, test_lists
 
 
 def embed_images(images, net):
@@ -138,9 +205,9 @@ if __name__ == '__main__':
     # root_dir = r"C:\temp\tempfordeep"
     # root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
     root_dir = r'C:\temp\tempfordeep4'
-    for seed in range(200):
-        print(seed)
-        split_check(root_dir, 2, 1,seed)
+    # for seed in range(200):
+    #     print(seed)
+    #     split_check(root_dir, 2, 1,seed)
     net = MobileNetV2()
     state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
