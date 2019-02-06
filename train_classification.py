@@ -80,7 +80,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         print(nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-    torch.save(net.state_dict(), ".pth")
+    torch.save(net.state_dict(), "classification.pth")
     return device, epochs, net
 
 

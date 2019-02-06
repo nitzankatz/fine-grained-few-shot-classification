@@ -12,8 +12,11 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def run_n_way_k_shot(root_dir, N, k, net):
     start_seed = 0
+    accs = []
     for seed in range(3):
-        n_way_k_shot(root_dir, N, k, net, start_seed + seed)
+        curr_acc = n_way_k_shot(root_dir, N, k, net, start_seed + seed)
+        accs.append(curr_acc)
+    return sum(accs) / float(len(accs))
 
 
 def split_check(root_dir, N, k, seed):
