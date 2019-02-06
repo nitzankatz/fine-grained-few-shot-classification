@@ -9,6 +9,13 @@ import torch.nn.functional as F
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
+def split_check(root_dir, N, k, seed):
+    classes_dirs = get_n_classes_dirs(N, root_dir, seed)
+    comparable_lists, test_lists = split_classes(classes_dirs, k, seed)
+    print(comparable_lists)
+
+
 def n_way_k_shot(root_dir, N, k, net):
     classes_dirs = get_n_classes_dirs(N, root_dir)
     comparable_lists, test_lists = split_classes(classes_dirs, k)
@@ -52,6 +59,7 @@ def get_list_loader(list, batch_size):
 
 def test_class(class_test_list, class_num, comparable_embeddings, net):
     test_loader = get_list_loader(class_test_list, 64)
+    # test_loader = get_list_loader(class_test_list, 1)
     comparable_embeddings = comparable_embeddings.unsqueeze(2)
     num_correct = 0
     for batch_num, images in enumerate(test_loader):
@@ -66,30 +74,32 @@ def test_class(class_test_list, class_num, comparable_embeddings, net):
 def get_num_correct(class_num, diff):
     dists = torch.norm(diff, dim=3)
     sum_dists = dists.sum(1)
+    tmp = sum_dists.detach().cpu().numpy()
     max_class = torch.argmin(sum_dists, dim=0)
     correct = max_class == class_num
     return correct.sum()
 
 
-def get_n_classes_dirs(N, root_dir):
+def get_n_classes_dirs(N, root_dir, seed=1234):
     classes_dirs = my_list_dir(root_dir)
-    classes_dirs, _ = choose_n_from_list(classes_dirs, N)
+    classes_dirs, _ = choose_n_from_list(classes_dirs, N, seed)
     return classes_dirs
 
 
-def split_classes(classes_dirs, k):
+def split_classes(classes_dirs, k, seed=1234):
     comparable_lists = []
     test_lists = []
     for class_dir in classes_dirs:
-        class_comparables, class_test = split_class(class_dir, k)
+        class_comparables, class_test = split_class(class_dir, k, seed)
         comparable_lists.append(class_comparables)
         test_lists.append(class_test)
+    # test_lists.reverse()
     return comparable_lists, test_lists
 
 
-def split_class(class_dir, k):
+def split_class(class_dir, k, seed=1234):
     class_images = my_list_dir(class_dir)
-    class_comparables, class_test = choose_n_from_list(class_images, k)
+    class_comparables, class_test = choose_n_from_list(class_images, k, seed)
     return class_comparables, class_test
 
 
@@ -98,10 +108,10 @@ def my_list_dir(root_dir):
     return [os.path.join(root_dir, sub) for sub in subs]
 
 
-def choose_n_from_list(list, n):
+def choose_n_from_list(list, n, seed):
     assert n <= len(list)
-    # random.seed(1234)
-    # random.seed(1235)
+    random.seed(seed)
+    # random.seed(1249)
     random.shuffle(list)
     n_list = list[:n]
     rest_list = list[n:]
@@ -126,10 +136,14 @@ class ListDataset(Dataset):
 
 if __name__ == '__main__':
     # root_dir = r"C:\temp\tempfordeep"
-    root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
+    # root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
+    root_dir = r'C:\temp\tempfordeep4'
+    for seed in range(200):
+        print(seed)
+        split_check(root_dir, 2, 1,seed)
     net = MobileNetV2()
     state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
     net.eval()
-    acc = n_way_k_shot(root_dir, 5, 5, net)
+    acc = n_way_k_shot(root_dir, 2, 1, net)
     print("acc is: " + str(acc))
