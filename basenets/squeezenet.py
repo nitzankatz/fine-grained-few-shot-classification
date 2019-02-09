@@ -106,7 +106,7 @@ class SqueezeNet(nn.Module):
     def embed(self, x):
         x = self.features(x)
         x = self.embedding_pooling(x)
-        return x
+        return x.squeeze()
 
 def squeezenet1_0(pretrained=False, **kwargs):
     r"""SqueezeNet model architecture from the `"SqueezeNet: AlexNet-level
