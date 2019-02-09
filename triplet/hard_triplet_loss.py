@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from functools import reduce
 
 class HardTripletLoss(nn.Module):
     """Hard/Hardest Triplet Loss
@@ -66,6 +66,8 @@ class HardTripletLoss(nn.Module):
 
             # Count number of hard triplets (where triplet_loss > 0)
             hard_triplets = torch.gt(triplet_loss, 1e-16).float()
+            possible_triplets = reduce(lambda x, y: x*y, triplet_loss.size())
+            triplets_portion = hard_triplets/possible_triplets
             num_hard_triplets = torch.sum(hard_triplets)
 
             triplet_loss = torch.sum(triplet_loss) / (num_hard_triplets + 1e-16)

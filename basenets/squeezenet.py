@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.nn.init as init
 import os
 import torch.utils.model_zoo as model_zoo
+from torchvision import transforms, datasets
+from torch.utils.data import dataloader
+from torch import functional as F
 
 __all__ = ['SqueezeNet', 'squeezenet1_0', 'squeezenet1_1']
 
@@ -59,6 +62,7 @@ class SqueezeNet(nn.Module):
                 nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
                 Fire(512, 64, 256, 256),
             )
+
         else:
             self.features = nn.Sequential(
                 nn.Conv2d(3, 64, kernel_size=3, stride=2),
@@ -83,6 +87,7 @@ class SqueezeNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool2d((1, 1))
         )
+        self.embedding_pooling = nn.AdaptiveAvgPool2d((1, 1))
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -98,6 +103,10 @@ class SqueezeNet(nn.Module):
         x = self.classifier(x)
         return x.view(x.size(0), self.num_classes)
 
+    def embed(self, x):
+        x = self.features(x)
+        x = self.embedding_pooling(x)
+        return x
 
 def squeezenet1_0(pretrained=False, **kwargs):
     r"""SqueezeNet model architecture from the `"SqueezeNet: AlexNet-level
@@ -129,6 +138,49 @@ def squeezenet1_1(pretrained=False, **kwargs):
 if __name__ == '__main__':
     b = torch.zeros([5, 3, 200, 200])
     net = SqueezeNet()
-    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
     net.load_state_dict(state_dict)
     out = net(b)
+
+    traindir = os.path.join('tempfordeep')
+    valdir = os.path.join('tempfordeep')
+    batch_size = 1
+    n_worker = 1
+
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+
+    train_dataset = datasets.ImageFolder(
+        traindir,
+        transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ]))
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=False,
+        num_workers=n_worker, pin_memory=True)
+
+    # val_loader = torch.utils.data.DataLoader(
+    #     datasets.ImageFolder(valdir, transforms.Compose([
+    #         transforms.Resize(int(input_size / 0.875)),
+    #         transforms.CenterCrop(input_size),
+    #         transforms.ToTensor(),
+    #         normalize,
+    #     ])),
+    #     batch_size=batch_size, shuffle=False,
+    #     num_workers=n_worker, pin_memory=True)
+    train_in = next(iter(train_loader))
+    # val_in = next(iter(val_loader))
+    train_im, train_class = train_in[0], train_in[1]
+    # val_im, val_class = val_in[0], val_in[1]
+
+    net.eval()
+    out_train = net(train_im)
+    # out_val = net(val_im)
+    # predicted_classes = torch.argmax(out_val)
+    topk, predicted_classes = torch.topk(out_train.squeeze(), 5)
+
+    a=1

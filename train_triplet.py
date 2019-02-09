@@ -70,10 +70,10 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
         net.eval()
         nk = n_way_k_shot(valdir, 5, 5, net=net)
-        print(nk)
+        print(nk.detatch().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-    torch.save(net.state_dict(), ".pth")
+    torch.save(net.state_dict(), "triplet.pth")
     return device, epochs, net
 
 

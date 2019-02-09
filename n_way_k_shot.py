@@ -66,20 +66,6 @@ def get_list_loader(list, batch_size):
     return loader
 
 
-def test_class(class_test_list, class_num, comparable_embeddings, net):
-    test_loader = get_list_loader(class_test_list, 64)
-    # test_loader = get_list_loader(class_test_list, 1)
-    comparable_embeddings = comparable_embeddings.unsqueeze(2)
-    num_correct = 0
-    for batch_num, images in enumerate(test_loader):
-        embeddings = embed_images(images, net)
-        embeddings = embeddings.unsqueeze(0).unsqueeze(1)
-        diff = embeddings - comparable_embeddings
-        num_correct += get_num_correct(class_num, diff)
-
-    return num_correct, len(class_test_list)
-
-
 def get_num_correct(class_num, diff):
     dists = torch.norm(diff, dim=3)
     sum_dists = dists.sum(1)
@@ -92,7 +78,21 @@ def get_num_correct(class_num, diff):
 def get_n_classes_dirs(N, root_dir, seed=1234):
     classes_dirs = my_list_dir(root_dir)
     classes_dirs, _ = choose_n_from_list(classes_dirs, N, seed)
+    # test_loader = get_list_loader(class_test_list, 1)
     return classes_dirs
+
+
+def test_class(class_test_list, class_num, comparable_embeddings, net):
+    test_loader = get_list_loader(class_test_list, 64)
+    comparable_embeddings = comparable_embeddings.unsqueeze(2)
+    num_correct = 0
+    for batch_num, images in enumerate(test_loader):
+        embeddings = embed_images(images, net)
+        embeddings = embeddings.unsqueeze(0).unsqueeze(1)
+        diff = embeddings - comparable_embeddings
+        num_correct += get_num_correct(class_num, diff)
+
+    return num_correct, len(class_test_list)
 
 
 def split_classes(classes_dirs, k, seed=1234):
