@@ -1,6 +1,7 @@
 import torch
 import os
 from basenets.mobilenet import MobileNetV2
+from basenets.squeezenet import SqueezeNet
 from torch.utils.data import DataLoader
 from torchvision.datasets import DatasetFolder
 from tensorboardX import SummaryWriter
@@ -10,22 +11,22 @@ from torchvision import transforms, datasets
 from n_way_k_shot import run_n_way_k_shot
 
 
-def train(net, data_loader, loss_fn, experiment_name, valdir):
-
+def train(net, data_loader, loss_fn, valdir):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 50
     net = net.to(device)
-    # net = Lenet5(net_params_dict, data_params_dict).to(device)
-    # dataset_train = FashionDataset(os.path.join('data', 'FashionMnist'), 'train')
-    # train_loader = DataLoader(dataset_train, batch_size=64, shuffle=True, num_workers=1, drop_last=True)
-    #
-    # dataset_test = FashionDataset(os.path.join('data', 'FashionMnist'), 'test')
-    # test_loader = DataLoader(dataset_test, batch_size=1000, num_workers=1)
+    main_tesnorboard_dir = 'logs'
+    prevoius_experiments = os.listdir(main_tesnorboard_dir)
+    prevoius_experiments_numeric = [int(exp_name) for exp_name in prevoius_experiments if exp_name.isdigit()]
+    if len(prevoius_experiments_numeric) == 0:
+      experiment_num = 1
+    else:
+      experiment_num = max(prevoius_experiments_numeric) + 1
 
     optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
-    writer = SummaryWriter(os.path.join(experiment_name))
+    writer = SummaryWriter(os.path.join(main_tesnorboard_dir,str(experiment_num)))
     accuracy = 0
 
     for epoch in range(epochs):
@@ -79,19 +80,21 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         nk = run_n_way_k_shot(valdir, 5, 5, net=net)
         print(nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
+        torch.save(net.state_dict(), "classification.pth")
 
-    torch.save(net.state_dict(), "classification.pth")
     return device, epochs, net
 
 
 if __name__ == '__main__':
-
     train_classes = 160
     loss_func = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
-    net = MobileNetV2(n_class=train_classes)
 
+    # net = MobileNetV2(n_class=train_classes)
+    net = SqueezeNet(num_classes=train_classes)
     random_state_dict = net.state_dict()
-    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+    # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'),
+                            map_location=lambda storage, loc: storage)
 
     state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
     state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
@@ -111,15 +114,13 @@ if __name__ == '__main__':
 
     train_trans_list = get_train_transforms(input_size=input_size)
     train_dataset = datasets.ImageFolder(
-        traindir,train_trans_list)
+        traindir, train_trans_list)
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=n_worker)  # , pin_memory=True)
 
     # train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
-    train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1', valdir=valdir)
+    train(net=net, data_loader=train_loader, loss_fn=loss_func, valdir=valdir)
 
-    a=1
-
-
+    a = 1

@@ -5,6 +5,7 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from utils import get_val_transforms
 from basenets.mobilenet import MobileNetV2
+from basenets.squeezenet import SqueezeNet
 import torch.nn.functional as F
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -145,15 +146,20 @@ class ListDataset(Dataset):
 
 if __name__ == '__main__':
     # root_dir = r"C:\temp\tempfordeep"
-    # root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
-    root_dir = r'C:\temp\tempfordeep4'
+    root_dir = r'C:\dev\studies\deepLearning\fine-grained-few-shot-calssification\data\CUB_200_2011\images\val'
+    # root_dir = r'C:\temp\tempfordeep4'
     # for seed in range(3):
     #     print(seed)
     #     split_check(root_dir, 2, 1, seed)
-    net = MobileNetV2()
-    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
+
+    # net = MobileNetV2()
+    # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth'), map_location=lambda storage, loc: storage)
+
+    net = SqueezeNet()
+    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
+
     net.load_state_dict(state_dict)
     net.eval()
     for seed in range(3):
-        acc = n_way_k_shot(root_dir, 2, 1, net, seed)
+        acc = n_way_k_shot(root_dir, 5, 5, net,1000+ seed)
         print("acc is: " + str(acc))
