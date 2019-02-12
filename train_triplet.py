@@ -1,6 +1,7 @@
 import torch
 import os
 from basenets.mobilenet import MobileNetV2
+from basenets.squeezenet import SqueezeNet
 from torch.utils.data import DataLoader
 from torchvision.datasets import DatasetFolder
 from tensorboardX import SummaryWriter
@@ -16,11 +17,17 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 50
     net = net.to(device)
-
+    main_tesnorboard_dir = 'logs'
+    prevoius_experiments = os.listdir(main_tesnorboard_dir)
+    prevoius_experiments_numeric = [int(exp_name) for exp_name in prevoius_experiments if exp_name.isdigit()]
+    if len(prevoius_experiments_numeric) == 0:
+        experiment_num = 1
+    else:
+        experiment_num = max(prevoius_experiments_numeric) + 1
     optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
-    writer = SummaryWriter(os.path.join(experiment_name))
+    writer = SummaryWriter(os.path.join(str(experiment_num)))
     accuracy = 0
 
     for epoch in range(epochs):
@@ -81,10 +88,12 @@ if __name__ == '__main__':
 
     train_classes = 160
     loss_func = HardTripletLoss(hardest=True)
-    net = MobileNetV2(n_class=train_classes)
+    # net = MobileNetV2(n_class=train_classes)
+    net = SqueezeNet(num_classes=train_classes)
 
     random_state_dict = net.state_dict()
-    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+    # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'squeezenet_class.pth'), map_location=lambda storage, loc: storage)
 
     state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
     state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
