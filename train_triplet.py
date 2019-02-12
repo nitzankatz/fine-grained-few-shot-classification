@@ -15,7 +15,7 @@ from triplet.hard_triplet_loss import HardTripletLoss
 def train(net, data_loader, loss_fn, experiment_name, valdir):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    epochs = 50
+    epochs = 150
     net = net.to(device)
     main_tesnorboard_dir = 'logs'
     prevoius_experiments = os.listdir(main_tesnorboard_dir)
@@ -80,14 +80,14 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         print(nk.detatch().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-    torch.save(net.state_dict(), "triplet.pth")
+        torch.save(net.state_dict(), "squeezenet_triplet_hard.pth")
     return device, epochs, net
 
 
 if __name__ == '__main__':
 
     train_classes = 160
-    loss_func = HardTripletLoss(hardest=True)
+    loss_func = HardTripletLoss(hardest=False)
     # net = MobileNetV2(n_class=train_classes)
     net = SqueezeNet(num_classes=train_classes)
 
