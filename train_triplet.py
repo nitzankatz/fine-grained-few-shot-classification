@@ -77,7 +77,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
         net.eval()
         nk = n_way_k_shot(valdir, 5, 5, net=net)
-        print(nk.detatch().cpu().numpy())
+        print(nk.detach().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
         torch.save(net.state_dict(), "squeezenet_triplet_hard.pth")
