@@ -43,7 +43,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
             images_batch = sample_batch[0].to(device)
             labels_batch = sample_batch[1]
-            y_pred = net(images_batch)
+            y_pred = net.embed(images_batch)
 
             # Compute and print loss
 
@@ -60,10 +60,10 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             optimizer.step()
 
             net.eval()
-            y_pred = net(images_batch)
+            # y_pred = net(images_batch)
             net.train()
 
-            pred_lables = torch.argmax(y_pred, 1)
+            # pred_lables = torch.argmax(y_pred, 1)
 
 
             num_samples += labels_batch.shape[0]
@@ -80,14 +80,14 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         print(nk.detach().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-        torch.save(net.state_dict(), "squeezenet_triplet_hardest.pth")
+        torch.save(net.state_dict(), "squeezenet_triplet_hard.pth")
     return device, epochs, net
 
 
 if __name__ == '__main__':
 
     train_classes = 160
-    loss_func = HardTripletLoss(hardest=True)
+    loss_func = HardTripletLoss(hardest=False)
     # net = MobileNetV2(n_class=train_classes)
     net = SqueezeNet(num_classes=train_classes)
 
