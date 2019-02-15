@@ -8,7 +8,7 @@ from tensorboardX import SummaryWriter
 # import argparse
 from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
-from n_way_k_shot import n_way_k_shot
+from n_way_k_shot import n_way_k_shot, run_n_way_k_shot
 from triplet.hard_triplet_loss import HardTripletLoss
 
 
@@ -59,12 +59,11 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             loss.backward()
             optimizer.step()
 
-            net.eval()
+            # net.eval()
             # y_pred = net(images_batch)
-            net.train()
+            # net.train()
 
             # pred_lables = torch.argmax(y_pred, 1)
-
 
             num_samples += labels_batch.shape[0]
             loss_sum += loss.detach().cpu().numpy()
@@ -76,7 +75,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         writer.add_scalar("loss vs epoch", avg_loss, epoch)
 
         net.eval()
-        nk = n_way_k_shot(valdir, 5, 5, net=net)
+        nk = run_n_way_k_shot(valdir, 5, 5, net=net)
         print(nk.detach().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
