@@ -50,7 +50,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             # Compute and print loss
 
             labels_batch = labels_batch.type(torch.LongTensor).to(device)
-            loss = loss_fn(y_pred, labels_batch)
+            loss,acc = loss_fn(y_pred, labels_batch)
 
             if i_batch % 1000 == 0:
                 print(i_batch, loss.item())
@@ -101,12 +101,14 @@ if __name__ == '__main__':
     train_dataset = datasets.ImageFolder(
         traindir, train_trans_list)
 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True,
-        num_workers=n_worker)  # , pin_memory=True)
-
     classes = [sample_tuple[1] for sample_tuple in train_dataset.samples]
     sampler = PrototypicalBatchSampler(classes, 5, 40, 40)
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_sampler=sampler,
+        num_workers=n_worker)  # , pin_memory=True)
+
+
 
     loss_func = PrototypicalLoss(n_support=5)
     # net = MobileNetV2(n_class=train_classes)
