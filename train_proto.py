@@ -81,7 +81,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         print(nk.detach().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-        torch.save(net.state_dict(), "squeezenet_triplet_hard.pth")
+        torch.save(net.state_dict(), "squeezenet_proto_train.pth")
     return device, epochs, net
 
 
