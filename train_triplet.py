@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     random_state_dict = net.state_dict()
     # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
-    state_dict = torch.load(os.path.join('weights', 'squeezenet_class.pth'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
 
     state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
     state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
