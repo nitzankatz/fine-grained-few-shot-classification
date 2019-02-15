@@ -27,7 +27,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
-    writer = SummaryWriter(os.path.join(str(experiment_num)))
+    writer = SummaryWriter(os.path.join(main_tesnorboard_dir,str(experiment_num)))
     accuracy = 0
 
     for epoch in range(epochs):
