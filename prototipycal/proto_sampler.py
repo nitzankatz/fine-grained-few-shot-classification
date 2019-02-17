@@ -92,7 +92,8 @@ if __name__ == '__main__':
 
     net = SqueezeNet(num_classes=160)
     # weights_path = os.path.join('weights', 'squeezenet1_0-a815701f.pth')
-    weights_path = r"C:\temp\weights\classification.pth"
+    #weights_path = r"C:\temp\weights\classification.pth"
+    weights_path = r"C:\temp\weights\squeezenet_triplet_hard.pth"
     state_dict = torch.load(weights_path, map_location=lambda storage, loc: storage)
 
     net.load_state_dict(state_dict)

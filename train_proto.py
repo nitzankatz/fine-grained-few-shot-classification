@@ -12,7 +12,7 @@ from n_way_k_shot import n_way_k_shot, run_n_way_k_shot
 from triplet.hard_triplet_loss import HardTripletLoss
 from prototipycal.proto_loss import PrototypicalLoss
 from prototipycal.proto_sampler import PrototypicalBatchSampler
-
+from prototipycal.proto_n_way_k_shot import proto_n_way_k_shot
 
 def train(net, data_loader, loss_fn, experiment_name, valdir):
 
@@ -77,7 +77,8 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         writer.add_scalar("loss vs epoch", avg_loss, epoch)
 
         net.eval()
-        nk = run_n_way_k_shot(valdir, 5, 5, net=net)
+        # nk = run_n_way_k_shot(valdir, 2, 2, net=net)
+        nk = proto_n_way_k_shot(valdir, 5, 5, net)
         print(nk.detach().cpu().numpy())
         writer.add_scalar("nk vs epoch", nk, epoch)
 
@@ -92,6 +93,8 @@ if __name__ == '__main__':
     traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
+    # traindir = r'C:\temp\tempfordeep7'
+    # valdir = r'C:\temp\tempfordeep7'
     batch_size = 205
     n_worker = 1
 
@@ -102,7 +105,7 @@ if __name__ == '__main__':
         traindir, train_trans_list)
 
     classes = [sample_tuple[1] for sample_tuple in train_dataset.samples]
-    sampler = PrototypicalBatchSampler(classes, 5, 40, 40)
+    sampler = PrototypicalBatchSampler(classes, 2, 4, 10)
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_sampler=sampler,
@@ -110,18 +113,18 @@ if __name__ == '__main__':
 
 
 
-    loss_func = PrototypicalLoss(n_support=5)
+    loss_func = PrototypicalLoss(n_support=2)
     # net = MobileNetV2(n_class=train_classes)
     net = SqueezeNet(num_classes=train_classes)
 
-    random_state_dict = net.state_dict()
-    # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
-    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
-
-    state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
-    state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
-
-    net.load_state_dict(state_dict)
+        # random_state_dict = net.state_dict()
+        # # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+        # state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
+        #
+        # state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
+        # state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
+        #
+        # net.load_state_dict(state_dict)
 
     # traindir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'train')
     # valdir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'val')
