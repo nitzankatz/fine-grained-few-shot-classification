@@ -105,7 +105,7 @@ if __name__ == '__main__':
         traindir, train_trans_list)
 
     classes = [sample_tuple[1] for sample_tuple in train_dataset.samples]
-    sampler = PrototypicalBatchSampler(classes, 2, 4, 10)
+    sampler = PrototypicalBatchSampler(classes, 5, 10, 100)
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_sampler=sampler,
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
 
 
-    loss_func = PrototypicalLoss(n_support=2)
+    loss_func = PrototypicalLoss(n_support=5)
     # net = MobileNetV2(n_class=train_classes)
     net = SqueezeNet(num_classes=train_classes)
 
