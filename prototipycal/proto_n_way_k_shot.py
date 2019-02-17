@@ -6,6 +6,7 @@ from prototipycal.proto_loss import PrototypicalLoss
 
 
 def proto_n_way_k_shot(val_dir, N, k,net, input_size=224, num_support=16):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     val_trans_list = get_val_transforms(input_size=input_size)
     val_dataset = datasets.ImageFolder(
         val_dir, val_trans_list)
@@ -19,8 +20,8 @@ def proto_n_way_k_shot(val_dir, N, k,net, input_size=224, num_support=16):
     sum_acc = 0
     num_acc = 0
     for x, y in iter(val_loader):
-        emb = net.embed(x)
-        loss, acc = loss_func(emb, y)
+        emb = net.embed(x.to(device))
+        loss, acc = loss_func(emb, y.to(device))
         sum_acc += acc
         num_acc += 1
     return (sum_acc / num_acc)
