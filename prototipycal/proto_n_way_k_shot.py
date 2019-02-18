@@ -16,7 +16,7 @@ def proto_n_way_k_shot(val_dir, N, k,net, input_size=224, num_support=5):
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
         num_workers=1, batch_sampler=sampler)  # , pin_memory=True)
-    loss_func = PrototypicalLoss(n_support=1)
+    loss_func = PrototypicalLoss(n_support=5)
     sum_acc = 0
     num_acc = 0
     for x, y in iter(val_loader):
