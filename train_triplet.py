@@ -10,7 +10,7 @@ from utils import get_train_transforms, get_val_transforms
 from torchvision import transforms, datasets
 from n_way_k_shot import n_way_k_shot, run_n_way_k_shot
 from triplet.hard_triplet_loss import HardTripletLoss
-
+import torch.nn.functional as F
 
 def train(net, data_loader, loss_fn, experiment_name, valdir):
 

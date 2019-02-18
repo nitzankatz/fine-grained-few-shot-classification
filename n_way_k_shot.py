@@ -34,6 +34,7 @@ def n_way_k_shot(root_dir, N, k, net, seed=1234):
 
 def embed_images(images, net):
     raw_embeddings = net.embed(images.to(device))
+    # return (raw_embeddings)
     return F.normalize(raw_embeddings)
 
 
