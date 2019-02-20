@@ -22,7 +22,7 @@ def plot_tsne_embeddings(val_dir, weights_path):
         state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
         net.load_state_dict(state_dict)
     else:
-        weight_path = os.path.join('weights','random')
+        weight_path = os.path.join('weights', 'random')
     val_trans_list = get_val_transforms(input_size=input_size)
     val_dataset = datasets.ImageFolder(
         val_dir, val_trans_list)
@@ -32,17 +32,22 @@ def plot_tsne_embeddings(val_dir, weights_path):
     all_embeds = None
     all_labels = None
     for i, (batch, labels) in enumerate(val_loader):
-        if i == 200:
-            break
-        current_embeds = net.embed(batch.to(device))
+        # if i == 10:
+        #     break
+        current_embeds = net.embed(batch.to(device)).detach().cpu().numpy()
         if i == 0:
             all_embeds = current_embeds
             all_labels = labels
         else:
-            all_embeds = torch.cat((all_embeds, current_embeds), 0)
-            all_labels = torch.cat((all_labels, labels), 0)
-    numpy_embeds = all_embeds.detach().cpu().numpy()
-    numpy_labels = all_labels.detach().cpu().numpy()
+            # all_embeds = torch.cat((all_embeds, current_embeds), 0)
+            # all_labels = torch.cat((all_labels, labels), 0)
+            all_embeds = np.concatenate((all_embeds, current_embeds), 0)
+            all_labels = np.concatenate((all_labels, labels), 0)
+
+    # numpy_embeds = all_embeds.detach().cpu().numpy()
+    # numpy_labels = all_labels.detach().cpu().numpy()
+    numpy_embeds = all_embeds
+    numpy_labels = all_labels
     # labels_msb, labels_lsb =  np.divmod(numpy_labels,len(markers))
     tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
     tsne_results = tsne.fit_transform(numpy_embeds)
