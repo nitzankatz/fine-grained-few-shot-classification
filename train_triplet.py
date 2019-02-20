@@ -84,8 +84,8 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         if current_nk > nk_best:
             torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_best.pth"))
             nk_best = current_nk
-        else:
-            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_last.pth"))
+        torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_last.pth"))
+
     return device, epochs, net
 
 
