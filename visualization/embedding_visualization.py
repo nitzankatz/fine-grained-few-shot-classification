@@ -75,6 +75,6 @@ def plot_tsne_embeddings(val_dir, weights_path):
 
 if __name__ == '__main__':
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
-    weight_path = 'random'
-    # weight_path = os.path.join('weights', 'squeezenet_class.pth')
+    # weight_path = 'random'
+    weight_path = os.path.join('weights', 'squeezenet_class.pth')
     plot_tsne_embeddings(valdir, weight_path)
