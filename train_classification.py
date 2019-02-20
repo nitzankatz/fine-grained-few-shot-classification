@@ -28,6 +28,7 @@ def train(net, data_loader, loss_fn, valdir):
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir,str(experiment_num)))
     accuracy = 0
+    nk_best = 0
 
     for epoch in range(epochs):
 
@@ -36,6 +37,7 @@ def train(net, data_loader, loss_fn, valdir):
         loss_sum = 0
 
         net.train()
+
 
         for i_batch, sample_batch in enumerate(data_loader):
             # Forward pass: Compute predicted y by passing x to the model
@@ -78,9 +80,15 @@ def train(net, data_loader, loss_fn, valdir):
 
         net.eval()
         nk = run_n_way_k_shot(valdir, 5, 5, net=net)
-        print(nk)
+        current_nk = nk.detach().cpu().numpy()
+        print(current_nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
-        torch.save(net.state_dict(), "classification.pth")
+
+        if current_nk > nk_best:
+            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classification_best.pth"))
+            nk_best = current_nk
+        torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classification_last.pth"))
+
 
     return device, epochs, net
 
