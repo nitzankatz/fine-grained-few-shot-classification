@@ -6,7 +6,7 @@ from utils import get_val_transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
+import sys
 
 def plot_tsne_embeddings(val_dir, weights_path):
     input_size = 224
@@ -76,5 +76,6 @@ def plot_tsne_embeddings(val_dir, weights_path):
 if __name__ == '__main__':
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
     # weight_path = 'random'
-    weight_path = os.path.join('weights', 'squeezenet_class.pth')
+    # weight_path = os.path.join('weights', 'squeezenet_class.pth')
+    weight_path = sys.argv[1]
     plot_tsne_embeddings(valdir, weight_path)
