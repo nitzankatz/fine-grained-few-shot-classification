@@ -32,8 +32,8 @@ def plot_tsne_embeddings(val_dir, weights_path):
     all_embeds = None
     all_labels = None
     for i, (batch, labels) in enumerate(val_loader):
-        # if i == 10:
-        #     break
+        if i == 200:
+            break
         current_embeds = net.embed(batch.to(device))
         if i == 0:
             all_embeds = current_embeds
