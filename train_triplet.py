@@ -29,6 +29,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir,str(experiment_num)))
     accuracy = 0
+    nk_best = 0
 
     for epoch in range(epochs):
 
@@ -76,10 +77,15 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
         net.eval()
         nk = run_n_way_k_shot(valdir, 5, 5, net=net)
-        print(nk.detach().cpu().numpy())
+        current_nk = nk.detach().cpu().numpy()
+        print(current_nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-        torch.save(net.state_dict(), "squeezenet_triplet_hardest.pth")
+        if current_nk > nk_best:
+            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_best.pth"))
+            nk_best = current_nk
+        else:
+            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_last.pth"))
     return device, epochs, net
 
 
