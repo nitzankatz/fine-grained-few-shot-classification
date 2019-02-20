@@ -22,7 +22,7 @@ def plot_tsne_embeddings(val_dir, weights_path):
         state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
         net.load_state_dict(state_dict)
     else:
-        weight_path = os.path.join('weights', 'random')
+        weights_path = os.path.join('weights', 'random')
     val_trans_list = get_val_transforms(input_size=input_size)
     val_dataset = datasets.ImageFolder(
         val_dir, val_trans_list)
@@ -69,7 +69,7 @@ def plot_tsne_embeddings(val_dir, weights_path):
             cmap=plt.cm.get_cmap('Paired'),
             alpha=0.9)
     # fig.show()
-    plt.savefig(weight_path.split('.')[0] + '.png')
+    plt.savefig(weights_path.split('.')[0] + '.png')
     a = 3
 
 
