@@ -13,7 +13,7 @@ from n_way_k_shot import run_n_way_k_shot
 
 def train(net, data_loader, loss_fn, valdir):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    epochs = 50
+    epochs = 150
     net = net.to(device)
     main_tesnorboard_dir = 'logs'
     prevoius_experiments = os.listdir(main_tesnorboard_dir)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
-    batch_size = 95
+    batch_size = 150
     n_worker = 1
 
     input_size = 224
