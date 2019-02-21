@@ -5,7 +5,7 @@ import os
 import torch.utils.model_zoo as model_zoo
 from torchvision import transforms, datasets
 from torch.utils.data import dataloader
-from torch import functional as F
+import torch.nn.functional as F
 
 __all__ = ['SqueezeNet', 'squeezenet1_0', 'squeezenet1_1']
 
@@ -105,7 +105,7 @@ class SqueezeNet(nn.Module):
 
     def embed(self, x):
         x = self.features(x)
-        x = self.embedding_pooling(x)
+        x = F.normalize(self.embedding_pooling(x))
         return x.squeeze()
 
 def squeezenet1_0(pretrained=False, **kwargs):
