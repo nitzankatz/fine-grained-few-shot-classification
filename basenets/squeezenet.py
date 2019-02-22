@@ -40,12 +40,13 @@ class Fire(nn.Module):
 
 class SqueezeNet(nn.Module):
 
-    def __init__(self, version=1.0, num_classes=1000):
+    def __init__(self, version=1.0, num_classes=1000, should_normalize=True):
         super(SqueezeNet, self).__init__()
         if version not in [1.0, 1.1]:
             raise ValueError("Unsupported SqueezeNet version {version}:"
                              "1.0 or 1.1 expected".format(version=version))
         self.num_classes = num_classes
+        self.should_normalize = should_normalize
         if version == 1.0:
             self.features = nn.Sequential(
                 nn.Conv2d(3, 96, kernel_size=7, stride=2),
@@ -105,7 +106,9 @@ class SqueezeNet(nn.Module):
 
     def embed(self, x):
         x = self.features(x)
-        x = F.normalize(self.embedding_pooling(x))
+        x = self.embedding_pooling(x)
+        if self.should_normalize:
+            x = F.normalize(x)
         return x.squeeze()
 
 def squeezenet1_0(pretrained=False, **kwargs):

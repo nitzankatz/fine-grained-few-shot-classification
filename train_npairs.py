@@ -32,7 +32,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir, str(experiment_num)))
     accuracy = 0
     nk_best = 0
-    checkpoint = 10
+    checkpoint = 100
     # checkpoint = 3
 
     iterations = 7500
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     train_classes = 160
     loss_func = NpairLoss()
     # net = MobileNetV2(n_class=train_classes)
-    net = SqueezeNet(num_classes=train_classes)
+    net = SqueezeNet(num_classes=train_classes, should_normalize=False)
 
     random_state_dict = net.state_dict()
     # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
