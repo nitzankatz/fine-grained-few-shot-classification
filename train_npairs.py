@@ -119,7 +119,7 @@ if __name__ == '__main__':
     traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
-    batch_size = 160
+    batch_size = 80
     # batch_size = 5
     n_worker = 1
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
     train_dataset = PairsDataSet(os.path.join('data', 'CUB_200_2011', 'images', 'train'),
                                  get_train_transforms(input_size=224))
-    train_loader = DataLoader(train_dataset, batch_size=5, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     # train_trans_list = get_train_transforms(input_size=input_size)
     # train_dataset = datasets.ImageFolder(
