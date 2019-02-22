@@ -101,7 +101,7 @@ if __name__ == '__main__':
     train_classes = 160
     loss_func = NpairLoss()
     # net = MobileNetV2(n_class=train_classes)
-    net = SqueezeNet(num_classes=train_classes)
+    net = SqueezeNet(num_classes=train_classes, should_normalize=False)
 
     random_state_dict = net.state_dict()
     # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
