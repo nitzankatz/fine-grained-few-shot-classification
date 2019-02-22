@@ -34,7 +34,7 @@ class NpairLoss(nn.Module):
         loss_ce = cross_entropy(logit, target)
         l2_loss = torch.sum(anchor ** 2) / batch_size + torch.sum(positive ** 2) / batch_size
 
-        loss = loss_ce + self.l2_reg * l2_loss * 0.25
+        loss = loss_ce #+ self.l2_reg * l2_loss * 0.25
         return loss
 
 

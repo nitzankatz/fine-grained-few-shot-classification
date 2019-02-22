@@ -32,7 +32,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir, str(experiment_num)))
     accuracy = 0
     nk_best = 0
-    checkpoint = 100
+    checkpoint = 1
     # checkpoint = 3
 
     iterations = 7500
@@ -81,14 +81,14 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             writer.add_scalar("loss vs epoch", avg_loss, iteration)
 
             net.eval()
-            nk = run_n_way_k_shot(valdir, 5, 5, net=net)
-            current_nk = nk.detach().cpu().numpy()
-            print(current_nk)
-            writer.add_scalar("nk vs epoch", nk, iteration)
+            # nk = run_n_way_k_shot(valdir, 4, 2, net=net)
+            # current_nk = nk.detach().cpu().numpy()
+            # print(current_nk)
+            # writer.add_scalar("nk vs epoch", nk, iteration)
 
-            if current_nk > nk_best:
-                torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classTransfer_triplet_hard_best.pth"))
-                nk_best = current_nk
+            # if current_nk > nk_best:
+            #     torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classTransfer_triplet_hard_best.pth"))
+            #     nk_best = current_nk
             torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classTransfer_triplet_hard_last.pth"))
 
             loss_sum = 0
@@ -116,10 +116,12 @@ if __name__ == '__main__':
     # traindir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'train')
     # valdir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'val')
 
-    traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
-    valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
+    # traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
+    # valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
+    traindir = r'C:\temp\tempfordeep8'
+    valdir = r'C:\temp\tempfordeep8'
 
-    batch_size = 80
+    batch_size = 4
     # batch_size = 5
     n_worker = 1
 
@@ -127,7 +129,7 @@ if __name__ == '__main__':
 
     train_dataset = PairsDataSet(os.path.join('data', 'CUB_200_2011', 'images', 'train'),
                                  get_train_transforms(input_size=224))
-    train_loader = DataLoader(train_dataset, batch_size=5, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     # train_trans_list = get_train_transforms(input_size=input_size)
     # train_dataset = datasets.ImageFolder(
