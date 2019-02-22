@@ -2,8 +2,9 @@ from torch.utils.data import Dataset, DataLoader
 import os
 import random
 from PIL import Image
-import numpy as np
 from utils import get_val_transforms
+from basenets.squeezenet import SqueezeNet
+from npairs.npairs_loss import NpairLoss
 
 def get_files_list(base_dir, class_dir):
     class_path = os.path.join(base_dir, class_dir)
@@ -21,7 +22,6 @@ class PairsDataSet(Dataset):
         with open(path, 'rb') as f:
             img = Image.open(f)
             img = img.convert('RGB')
-            # img = np.asarray(img)
             return self.transform(img)
 
     def __getitem__(self, idx):
@@ -39,9 +39,14 @@ class PairsDataSet(Dataset):
 
 
 if __name__ == '__main__':
+    net = SqueezeNet()
+    loss_func = NpairLoss()
     p = PairsDataSet(os.path.join('data', 'CUB_200_2011', 'images', 'val'), get_val_transforms(input_size=224))
     loader = DataLoader(p, batch_size=5, shuffle=True)
     for x in loader:
-        print(x)
+        embed0 = net.embed(x[0])
+        embed1 = net.embed(x[1])
+        loss = loss_func(embed0,embed1,x[2])
+        print(loss)
 
     pass
