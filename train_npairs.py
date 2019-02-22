@@ -14,8 +14,8 @@ import torch.nn.functional as F
 from npairs.npairs_loss import NpairLoss
 from npairs.pairs_dataloader import PairsDataSet
 
-def train(net, data_loader, loss_fn, experiment_name, valdir):
 
+def train(net, data_loader, loss_fn, experiment_name, valdir):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     epochs = 150
     net = net.to(device)
@@ -29,10 +29,11 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
-    writer = SummaryWriter(os.path.join(main_tesnorboard_dir,str(experiment_num)))
+    writer = SummaryWriter(os.path.join(main_tesnorboard_dir, str(experiment_num)))
     accuracy = 0
     nk_best = 0
     checkpoint = 100
+    # checkpoint = 3
 
     iterations = 7500
 
@@ -44,14 +45,16 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         for i_batch, sample_batch in enumerate(data_loader):
             # Forward pass: Compute predicted y by passing x to the model
             net.train()
-            images_batch = sample_batch[0].to(device)
-            labels_batch = sample_batch[1]
-            y_pred = net.embed(images_batch)
+            anchor_batch = sample_batch[0].to(device)
+            positive_batch = sample_batch[1].to(device)
+            labels_batch = sample_batch[2]
+            anchor_embed = net.embed(anchor_batch)
+            positive_embed = net.embed(positive_batch)
 
             # Compute and print loss
 
             labels_batch = labels_batch.type(torch.LongTensor).to(device)
-            loss = loss_fn(y_pred, labels_batch)
+            loss = loss_fn(anchor_embed, positive_embed, labels_batch)
 
             # Zero gradients, perform a backward pass, and update the weights.
 
@@ -69,9 +72,9 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             loss_sum += loss.detach().cpu().numpy()
 
         if iteration % checkpoint == 0:
-            print(i_batch, loss.item())
+            print(iteration, loss.item())
 
-            avg_loss = loss_sum / checkpoint
+            avg_loss = loss_sum / (checkpoint * len(train_loader))
 
             print("loss vs epoch classification train" + ' ' + str(avg_loss) + ' ' + str(iteration))
 
@@ -95,7 +98,6 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
 
 if __name__ == '__main__':
-
     train_classes = 160
     loss_func = NpairLoss()
     # net = MobileNetV2(n_class=train_classes)
@@ -103,7 +105,8 @@ if __name__ == '__main__':
 
     random_state_dict = net.state_dict()
     # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
-    state_dict = torch.load(os.path.join('weights', 'squeezenet_classification_best_150_epochs.pth'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'),
+                            map_location=lambda storage, loc: storage)
 
     state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
     state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
@@ -117,11 +120,13 @@ if __name__ == '__main__':
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
     batch_size = 80
+    # batch_size = 5
     n_worker = 1
 
     input_size = 224
 
-    train_dataset = PairsDataSet(os.path.join('data', 'CUB_200_2011', 'images', 'train'), get_train_transforms(input_size=224))
+    train_dataset = PairsDataSet(os.path.join('data', 'CUB_200_2011', 'images', 'train'),
+                                 get_train_transforms(input_size=224))
     train_loader = DataLoader(train_dataset, batch_size=5, shuffle=True)
 
     # train_trans_list = get_train_transforms(input_size=input_size)
@@ -135,4 +140,4 @@ if __name__ == '__main__':
     # train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
     train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1', valdir=valdir)
 
-    a=1
+    a = 1
