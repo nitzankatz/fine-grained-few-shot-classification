@@ -8,10 +8,9 @@ import os
 import sys
 
 
-
-
 def proto_n_way_k_shot(val_dir, N, k, net, input_size=224, num_support=5):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
     net = net.to(device)
     val_trans_list = get_val_transforms(input_size=input_size)
     val_dataset = datasets.ImageFolder(
