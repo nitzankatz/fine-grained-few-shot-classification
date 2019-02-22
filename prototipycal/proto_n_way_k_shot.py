@@ -24,10 +24,14 @@ def proto_n_way_k_shot(val_dir, N, k, net, input_size=224, num_query=10):
     # sum_acc = 0
     # num_acc = 0
     acc_list = []
+    counter = 0
     for x, y in iter(val_loader):
         emb = net.embed(x.to(device))
         loss, acc = loss_func(emb, y.to(device))
         acc_list.append(acc)
+        counter += 1
+        if counter % 100 == 0:
+            print(counter)
     accs = torch.stack(acc_list)
     return torch.mean(accs), torch.std(accs)
 
