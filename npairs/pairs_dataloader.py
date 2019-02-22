@@ -42,7 +42,7 @@ if __name__ == '__main__':
     net = SqueezeNet()
     loss_func = NpairLoss()
     p = PairsDataSet(os.path.join('data', 'CUB_200_2011', 'images', 'val'), get_val_transforms(input_size=224))
-    loader = DataLoader(p, batch_size=5, shuffle=True)
+    loader = DataLoader(p, batch_size=210, shuffle=True)
     for x in loader:
         embed0 = net.embed(x[0])
         embed1 = net.embed(x[1])
