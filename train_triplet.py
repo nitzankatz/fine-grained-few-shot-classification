@@ -92,7 +92,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 if __name__ == '__main__':
 
     train_classes = 160
-    loss_func = HardTripletLoss(hardest=False)
+    loss_func = HardTripletLoss(hardest=True)
     # net = MobileNetV2(n_class=train_classes)
     net = SqueezeNet(num_classes=train_classes)
 
