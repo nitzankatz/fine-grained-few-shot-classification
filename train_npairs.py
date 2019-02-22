@@ -32,7 +32,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir, str(experiment_num)))
     accuracy = 0
     nk_best = 0
-    checkpoint = 100
+    checkpoint = 10
     # checkpoint = 3
 
     iterations = 7500
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
-    batch_size = 80
+    batch_size = 160
     # batch_size = 5
     n_worker = 1
 
