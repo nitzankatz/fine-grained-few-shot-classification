@@ -39,10 +39,10 @@ if __name__ == '__main__':
     weight_path = sys.argv[1]
 
     net = SqueezeNet()
-    # state_dict = torch.load(weight_path,
-    #                         map_location=lambda storage, loc: storage)
+    state_dict = torch.load(weight_path,
+                            map_location=lambda storage, loc: storage)
 
-    # net.load_state_dict(state_dict)
+    net.load_state_dict(state_dict)
     net.eval()
     mean, std = proto_n_way_k_shot(root_dir, 5, 5, net)
     print('mean: ' + str(mean))
