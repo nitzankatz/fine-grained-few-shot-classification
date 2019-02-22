@@ -15,7 +15,7 @@ def proto_n_way_k_shot(val_dir, N, k, net, input_size=224, num_query=25):
     val_dataset = datasets.ImageFolder(
         val_dir, val_trans_list)
     classes = [sample_tuple[1] for sample_tuple in val_dataset.samples]
-    sampler = PrototypicalBatchSampler(classes, N, k + num_query, 600)
+    sampler = PrototypicalBatchSampler(classes, N, k + num_query, 3000)
 
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
