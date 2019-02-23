@@ -85,9 +85,9 @@ def train(net, data_loader, loss_fn, valdir):
         writer.add_scalar("nk vs epoch", nk, epoch)
 
         if current_nk > nk_best:
-            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classification_best.pth"))
+            torch.save(net.state_dict(), os.path.join("weights", "mobilenet_classification_best.pth"))
             nk_best = current_nk
-        torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classification_last.pth"))
+        torch.save(net.state_dict(), os.path.join("weights", "mobilenet_classification_last.pth"))
 
 
     return device, epochs, net
@@ -97,11 +97,11 @@ if __name__ == '__main__':
     train_classes = 160
     loss_func = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
 
-    # net = MobileNetV2(n_class=train_classes)
-    net = SqueezeNet(num_classes=train_classes)
+    net = MobileNetV2(n_class=train_classes)
+    # net = SqueezeNet(num_classes=train_classes)
     random_state_dict = net.state_dict()
     # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
-    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'),
+    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'),
                             map_location=lambda storage, loc: storage)
 
     state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
