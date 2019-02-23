@@ -31,6 +31,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir,str(experiment_num)))
     accuracy = 0
+    nk_best = 0
 
     for epoch in range(epochs):
 
@@ -79,10 +80,15 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         net.eval()
         # nk = run_n_way_k_shot(valdir, 2, 2, net=net)
         nk = proto_n_way_k_shot(valdir, 5, 5, net)
-        print(nk.detach().cpu().numpy())
+        current_nk = nk.detach().cpu().numpy()
+        print(current_nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
 
-        torch.save(net.state_dict(), "squeezenet_proto_train.pth")
+        if current_nk > nk_best:
+            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_proto_train_best.pth"))
+            nk_best = current_nk
+        torch.save(net.state_dict(), os.path.join("weights", "squeezenet_proto_train_last.pth"))
+
     return device, epochs, net
 
 
@@ -117,7 +123,17 @@ if __name__ == '__main__':
     # net = MobileNetV2(n_class=train_classes)
     net = SqueezeNet(num_classes=train_classes)
 
-        # random_state_dict = net.state_dict()
+    random_state_dict = net.state_dict()
+    # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'),
+                            map_location=lambda storage, loc: storage)
+
+    state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
+    state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
+
+    net.load_state_dict(state_dict)
+
+    # random_state_dict = net.state_dict()
         # # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
         # state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
         #
@@ -125,10 +141,6 @@ if __name__ == '__main__':
         # state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
         #
         # net.load_state_dict(state_dict)
-
-    # traindir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'train')
-    # valdir = os.path.join('data', 'CUB_200_2011_reorganized', 'CUB_200_2011', 'images', 'val')
-
 
     # train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
     train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1', valdir=valdir)
