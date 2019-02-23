@@ -79,7 +79,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 
         net.eval()
         # nk = run_n_way_k_shot(valdir, 2, 2, net=net)
-        nk = proto_n_way_k_shot(valdir, 5, 5, net)
+        nk = run_n_way_k_shot(valdir, 5, 5, net=net)
         current_nk = nk.detach().cpu().numpy()
         print(current_nk)
         writer.add_scalar("nk vs epoch", nk, epoch)
