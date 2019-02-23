@@ -82,9 +82,9 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         writer.add_scalar("nk vs epoch", nk, epoch)
 
         if current_nk > nk_best:
-            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_best.pth"))
+            torch.save(net.state_dict(), os.path.join("weights", "mobilenet_triplet_hard_best.pth"))
             nk_best = current_nk
-        torch.save(net.state_dict(), os.path.join("weights", "squeezenet_triplet_hardest_last.pth"))
+        torch.save(net.state_dict(), os.path.join("weights", "mobilenet_triplet_hard_last.pth"))
 
     return device, epochs, net
 
@@ -92,13 +92,13 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
 if __name__ == '__main__':
 
     train_classes = 160
-    loss_func = HardTripletLoss(hardest=True)
-    # net = MobileNetV2(n_class=train_classes)
-    net = SqueezeNet(num_classes=train_classes)
+    loss_func = HardTripletLoss(hardest=False)
+    net = MobileNetV2(n_class=train_classes)
+    # net = SqueezeNet(num_classes=train_classes)
 
     random_state_dict = net.state_dict()
     # state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
-    state_dict = torch.load(os.path.join('weights', 'squeezenet1_0-a815701f.pth'), map_location=lambda storage, loc: storage)
+    state_dict = torch.load(os.path.join('weights', 'mobilenet_v2.pth.tar'), map_location=lambda storage, loc: storage)
 
     state_dict['classifier.1.bias'] = random_state_dict['classifier.1.bias']
     state_dict['classifier.1.weight'] = random_state_dict['classifier.1.weight']
