@@ -26,7 +26,7 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         experiment_num = 1
     else:
         experiment_num = max(prevoius_experiments_numeric) + 1
-    optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum=0.9, weight_decay=1e-3)
+    optimizer = torch.optim.SGD(net.parameters(), lr=1e-5, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir, str(experiment_num)))
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
-    batch_size = 80
+    batch_size = 125
     # batch_size = 5
     n_worker = 1
 
