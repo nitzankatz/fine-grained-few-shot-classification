@@ -26,13 +26,13 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
         experiment_num = 1
     else:
         experiment_num = max(prevoius_experiments_numeric) + 1
-    optimizer = torch.optim.SGD(net.parameters(), lr=3.3e-5, momentum=0.9, weight_decay=1e-3)
+    optimizer = torch.optim.SGD(net.parameters(), lr=7e-5, momentum=0.9, weight_decay=1e-3)
 
     # SummaryWriter encapsulates everything
     writer = SummaryWriter(os.path.join(main_tesnorboard_dir, str(experiment_num)))
     accuracy = 0
     nk_best = 0
-    checkpoint = 100
+    checkpoint = 50
     # checkpoint = 3
 
     iterations = 7500
