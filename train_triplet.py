@@ -111,7 +111,7 @@ if __name__ == '__main__':
     traindir = os.path.join('data', 'CUB_200_2011', 'images', 'train')
     valdir = os.path.join('data', 'CUB_200_2011', 'images', 'val')
 
-    batch_size = 205
+    batch_size = 100
     n_worker = 1
 
     input_size = 224
