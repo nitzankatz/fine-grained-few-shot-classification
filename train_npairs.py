@@ -87,9 +87,9 @@ def train(net, data_loader, loss_fn, experiment_name, valdir):
             writer.add_scalar("nk vs epoch", nk, iteration)
 
             if current_nk > nk_best:
-                torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classTransfer_triplet_hard_best.pth"))
+                torch.save(net.state_dict(), os.path.join("weights", "squeezenet_npairs_best.pth"))
                 nk_best = current_nk
-            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_classTransfer_triplet_hard_last.pth"))
+            torch.save(net.state_dict(), os.path.join("weights", "squeezenet_npairs_last.pth"))
 
             loss_sum = 0
             num_samples = 0
