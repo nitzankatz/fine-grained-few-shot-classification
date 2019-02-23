@@ -131,4 +131,4 @@ if __name__ == '__main__':
     # train(net=net, data_loader=train_loader, loss_fn=loss_func, experiment_name='1')
     train(net=net, data_loader=train_loader, loss_fn=loss_func, valdir=valdir)
 
-    a = 1
+    a = 2
